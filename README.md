@@ -1,58 +1,75 @@
 # Royal Badminton Club iOS App
 
-Welcome to the **Royal Badminton Club** app! This application provides a premium, "Liquid Design" experience for badminton enthusiasts to book courts, join drop-in sessions, and manage their activities.
+Welcome to the **Royal Badminton Club** app! This application provides a premium, "Liquid Design" experience for badminton enthusiasts. It is the central hub for booking courts, joining social drop-in sessions, discovering tournaments, and managing membership profiles.
 
-## 📱 Features
+## 📱 Core Features
 
 ### 1. **Liquid Design System**
-The app is built using a custom "Royal Liquid" design language, featuring:
--   **Glassmorphism**: Translucent cards with blur effects.
--   **Vibrant Gradients**: Custom Royal Blue and Green gradients.
--   **Haptic Feedback**: Subtle vibrations for tactile interaction.
--   **Fluid Animations**: Smooth transitions between states.
+The app is built using our custom "Royal Liquid" design language:
+-   **Glassmorphism**: Translucent cards with blur effects for a modern, airy feel.
+-   **Vibrant Gradients**: Signature Royal Blue and Green aesthetics.
+-   **Tactile Feedback**: Haptic responses for key interactions.
+-   **Fluid Animations**: Smooth transitions for a polished user experience.
 
-### 2. **Court Booking**
-A streamlined flow to find and book courts.
+### 2. **Smart Court Booking**
+A streamlined flow to find and reserve courts.
 -   **Dashboard**: Personalized greeting with live club status (Active Courts, Weather).
--   **Smart Scheduling**: Slots organized by **Morning**, **Afternoon**, and **Evening**.
--   **Dynamic Pricing**: Rates adjust automatically based on Weekdays vs. Weekends and Time of Day.
--   **Real-Time Checks**: Tap any slot to instantly check server availability.
--   **Simulated Payments**: Integrated Stripe-style checkout for booking confirmation.
+-   **Smart Scheduling**: Slots organized by Morning, Afternoon, and Evening.
+-   **Dynamic Pricing**: Rates adjust automatically based on demand (Weekday vs. Weekend).
+-   **Real-Time Checks**: Instant server availability verification.
 
 ### 3. **Drop-In Sessions**
-Join casual play groups without booking a full court.
--   **Fixed Slots**: Daily sessions (e.g., 5-7 PM, 8-10 PM).
--   **Activation Logic**: Sessions remain "Open" until **6 players** join. Once filled, the system automatically books the required courts.
--   **Payment Holds**: Authorize a $15 hold that captures only when the session activates.
--   **Transparency**: Tap any session card to see the list of joined players and their status.
+Join casual play groups without the hassle of organizing.
+-   **Fixed Slots**: Daily recurring sessions.
+-   **Auto-Activation**: Sessions confirm automatically when **6 players** join.
+-   **Social Visibility**: See exactly who is playing before you join.
+
+### 4. **Events & Tournaments**
+Stay updated on club activities.
+-   **Events List**: Browse upcoming tournaments and training camps.
+-   **Rich Details**: View event rules, entry fees, time, and location in a beautiful layout.
+-   **Registration**: Easy tap-to-register flow.
+
+### 5. **User Profile & Management**
+Complete control over your account.
+-   **Edit Profile**: Update your Email and Phone Number directly.
+-   **History**: "My Bookings" tab tracks all confirmed sessions with cancellation options.
+-   **Security**: Password reset usage.
+-   **Legal Details**: Direct access to Privacy Policy and Terms & Conditions.
+
+## 📍 Locations
+Switch between our premium facilities instantly:
+-   **McLaughlin**: 9 Courts (Main).
+-   **Mayfield**: 6 Courts.
+-   **Etobicoke**: 12 Courts (New!).
+-   **Milton**: *Coming 2027*.
 
 ## 🛠 Tech Stack
 -   **Language**: Swift 5
 -   **Framework**: SwiftUI
 -   **Architecture**: MVVM (Model-View-ViewModel)
--   **Networking**: Combine Framework (simulated API calls)
--   **Payment**: Simulated Stripe integration
+-   **Networking**: Combine Framework
+-   **Payment**: Simulated Stripe integration with Apple Pay UI.
 
-## 🧪 How to Test
+## 🧪 Quick Start Guide
 
 ### Booking a Court
-1.  Navigate to the **Book** tab.
-2.  Swipe the date strip to choose a day.
-3.  Tap any **"Available"** (Green) slot.
-4.  If available, the Payment Sheet appears. Enter details and pay.
-5.  If full, an alert will notify you.
+1.  Go to the **Book** tab.
+2.  Select a date from the **glass strip**.
+3.  Tap a **Green Slot**.
+4.  Confirm payment.
+5.  View your reservation in **My Bookings**.
 
-### Testing Drop-In Logic
-1.  Navigate to the **Drop-In** tab.
-2.  **View Players**: Tap the white area of any card to see who is joined.
-3.  **Simulate Traffic**: Tap the small **Orange Person Icon** (Debug button) to instantly add 5 dummy players.
-4.  **Join**: Tap the blue **"Join"** button. enter your name.
-5.  **Trigger**: As the 6th player, you will trigger the "Activation" logic, changing the status to "Confirmed" (Green) if courts are available.
+### Joining a Drop-In
+1.  Go to the **Drop-In** tab.
+2.  Tap a card to view current players.
+3.  Tap **Join** to reserve your spot.
+4.  The session activates once 6 players join.
 
-## 📍 Locations
--   **Main Location**: McLaughlin
--   **Secondary**: Mayfield
--   Switch locations using the dropdown in the main header.
+### Managing Account
+1.  Tap the **User Avatar** in the top right.
+2.  Update your **Phone** or **Email**.
+3.  Access **Legal Documents**.
 
 ---
 *Developed for Royal Badminton Club.*

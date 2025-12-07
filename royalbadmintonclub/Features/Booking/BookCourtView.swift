@@ -1,10 +1,12 @@
 import SwiftUI
 import Combine
+import Foundation
 
 struct BookCourtView: View {
-    @StateObject private var network = NetworkManager.shared
+    @EnvironmentObject var network: NetworkManager
     @State private var selectedDate = Date()
     @State private var showingStripe = false
+    @State private var showingProfile = false
     @State private var selectedSlot: Slot?
     
     // Alert & state
@@ -76,7 +78,7 @@ struct BookCourtView: View {
             })
             .store(in: &cancellables)
     }
-    
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -87,8 +89,10 @@ struct BookCourtView: View {
                 ScrollView {
                     VStack(spacing: 25) {
                         // 1. Dashboard Header (Liquid Style)
-                        DashboardHeaderView()
+                        DashboardHeaderView(showingProfile: $showingProfile)
                             .padding(.horizontal)
+                        
+                        // ... [Rest of ScrollView content] ...
                         
                         // 2. Date Strip (Horizontal Liquid Cards)
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -115,6 +119,7 @@ struct BookCourtView: View {
                             VStack(spacing: 15) {
                                 ProgressView()
                                     .scaleEffect(1.5)
+                                    .tint(.blue)
                                 Text("Checking Court Availability...")
                                     .font(.headline)
                                     .foregroundColor(.secondary)
@@ -134,6 +139,9 @@ struct BookCourtView: View {
             .sheet(isPresented: $showingStripe) {
                 StripeCheckoutView(slot: selectedSlot)
             }
+            .sheet(isPresented: $showingProfile) {
+                UserProfileView()
+            }
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
@@ -144,13 +152,16 @@ struct BookCourtView: View {
 // MARK: - Components
 
 struct DashboardHeaderView: View {
+    @EnvironmentObject var network: NetworkManager
+    @Binding var showingProfile: Bool
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 5) {
                 Text("Good Afternoon,")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                Text("Royal Player")
+                Text(network.currentUser?.name ?? "Royal Player")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
@@ -171,11 +182,15 @@ struct DashboardHeaderView: View {
             }
             Spacer()
             
-            // Profile / User Icon
-            Image(systemName: "person.crop.circle.fill")
-                .font(.system(size: 50))
-                .foregroundColor(.blue.opacity(0.8))
-                .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
+            // Profile / User / Logout Icon
+            Button(action: {
+                showingProfile = true
+            }) {
+                Image(systemName: "person.crop.circle.fill")
+                    .font(.system(size: 50))
+                    .foregroundColor(.blue.opacity(0.8))
+                    .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
+            }
         }
         .padding()
         .liquidGlass() // Usage of Design System

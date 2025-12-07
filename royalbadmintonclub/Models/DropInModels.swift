@@ -18,7 +18,7 @@ struct DropInSession: Identifiable, Codable {
     let startTime: String // e.g., "17:00"
     let endTime: String   // e.g., "19:00"
     var players: [DropInPlayer] = []
-    let maxPlayers: Int = 6
+    var maxPlayers: Int = 6
     var status: DropInStatus = .open
     
     var timeRangeDisplay: String {

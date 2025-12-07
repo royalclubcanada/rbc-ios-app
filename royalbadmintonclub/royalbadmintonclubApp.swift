@@ -8,6 +8,7 @@ import SwiftUI
 @main
 struct royalbadmintonclubApp: App {
     @StateObject var network = NetworkManager.shared
+    @StateObject var bookingStore = BookingStore.shared
     @State private var selectedLocation: Location?
     
     var body: some Scene {
@@ -16,6 +17,7 @@ struct royalbadmintonclubApp: App {
                 if selectedLocation != nil {
                     MainTabView(selectedLocation: $selectedLocation)
                         .environmentObject(network)
+                        .environmentObject(bookingStore)
                         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                 } else {
                     LocationSelectionView(selectedLocation: $selectedLocation)

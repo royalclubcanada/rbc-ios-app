@@ -15,6 +15,7 @@ struct User: Codable, Identifiable {
     var id: String { email } // Assuming email is unique or use a real ID if available
     let email: String
     let name: String?
+    let phone: String?
     let token: String? // Assuming token comes back in user object or separate
 }
 
@@ -56,11 +57,15 @@ struct CourtAvailabilityData: Codable {
 enum Location: String, Codable {
     case mclaughlin = "McLaughlin"
     case mayfield = "Mayfield"
+    case etobicoke = "Etobicoke"
+    case milton = "Milton"
     
     var courtCount: Int {
         switch self {
         case .mclaughlin: return 9
         case .mayfield: return 6
+        case .etobicoke: return 12
+        case .milton: return 0 // Coming Soon
         }
     }
 }

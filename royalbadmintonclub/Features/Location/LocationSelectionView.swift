@@ -3,6 +3,7 @@ import SwiftUI
 struct LocationSelectionView: View {
     @EnvironmentObject var network: NetworkManager
     @Binding var selectedLocation: Location?
+    @State private var showComingSoonAlert = false
     
     // Smooth transition to main app
     var body: some View {
@@ -18,7 +19,7 @@ struct LocationSelectionView: View {
                     LocationCard(
                         title: "McLaughlin",
                         subtitle: "9 Courts Available",
-                        image: "map.fill", // Placeholder system icon
+                        image: "map.fill",
                         color: .blue
                     )
                     .onTapGesture {
@@ -38,12 +39,43 @@ struct LocationSelectionView: View {
                             selectedLocation = .mayfield
                         }
                     }
+                    
+                    LocationCard(
+                        title: "Etobicoke",
+                        subtitle: "12 Courts Available",
+                        image: "building.2.fill",
+                        color: .green
+                    )
+                    .onTapGesture {
+                        withAnimation {
+                            selectedLocation = .etobicoke
+                        }
+                    }
+                    
+                    LocationCard(
+                        title: "Milton",
+                        subtitle: "Coming 2027",
+                        image: "clock.fill",
+                        color: .gray
+                    )
+                    .onTapGesture {
+                        triggerHaptic()
+                        showComingSoonAlert = true
+                    }
                 }
                 .padding(.horizontal)
                 
                 Spacer()
             }
+            .alert(isPresented: $showComingSoonAlert) {
+                Alert(title: Text("Coming Soon"), message: Text("The Milton location will open in 2027. Stay tuned!"), dismissButton: .default(Text("OK")))
+            }
         }
+    }
+    
+    func triggerHaptic() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
     }
 }
 

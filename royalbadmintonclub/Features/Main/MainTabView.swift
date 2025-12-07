@@ -16,6 +16,8 @@ struct MainTabView: View {
                 case 1:
                     DropInView()
                 case 2:
+                    EventsView()
+                case 3:
                     MyBookingsView()
                 default:
                     Color.clear
@@ -72,8 +74,14 @@ struct MainTabView: View {
                 
                 Spacer()
                 
-                TabItem(icon: "person.crop.circle.fill", title: "My Bookings", isSelected: selectedTab == 2) {
+                TabItem(icon: "trophy.fill", title: "Events", isSelected: selectedTab == 2) {
                     selectedTab = 2
+                }
+                
+                Spacer()
+                
+                TabItem(icon: "person.crop.circle.fill", title: "My Bookings", isSelected: selectedTab == 3) {
+                    selectedTab = 3
                 }
             }
             .padding(.horizontal, 40)

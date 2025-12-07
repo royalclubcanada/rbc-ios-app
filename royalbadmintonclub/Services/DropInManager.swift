@@ -30,7 +30,7 @@ class DropInManager: ObservableObject {
     func joinSession(sessionId: UUID, playerName: String) {
         guard let index = sessions.firstIndex(where: { $0.id == sessionId }) else { return }
         
-        var session = sessions[index]
+        let session = sessions[index]
         if session.isFull { return }
         
         // Add Player (Hold Status)
@@ -43,7 +43,7 @@ class DropInManager: ObservableObject {
     
     // Check if session reached 6 players to activate
     private func checkActivation(for index: Int) {
-        var session = sessions[index]
+        let session = sessions[index]
         
         if session.players.count == session.maxPlayers {
             // Trigger Activation Logic
@@ -86,6 +86,23 @@ class DropInManager: ObservableObject {
         // Update players to Charged
         for i in 0..<sessions[index].players.count {
             sessions[index].players[i].status = "Charged"
+        }
+        
+        // Add to Booking History
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateString = formatter.string(from: Date())
+        
+        let newBooking = Booking(
+            id: UUID().uuidString,
+            date: dateString,
+            slotTime: sessions[index].startTime,
+            status: "confirmed",
+            courtName: "Drop-In Group"
+        )
+        
+        DispatchQueue.main.async {
+            BookingStore.shared.addBooking(newBooking)
         }
     }
     

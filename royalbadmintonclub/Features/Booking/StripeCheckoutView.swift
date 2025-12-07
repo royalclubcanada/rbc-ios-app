@@ -141,8 +141,23 @@ struct StripeCheckoutView: View {
     }
     
     func saveBooking() {
-        // Here we would call NetworkManager.shared.createBooking(...)
-        // For now, we assume success
-        print("Booking saved for slot: \(slot?.time ?? "Unknown")")
+        if let slot = slot {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            let dateString = formatter.string(from: Date())
+            
+            let newBooking = Booking(
+                id: UUID().uuidString,
+                date: dateString,
+                slotTime: slot.time,
+                status: "confirmed",
+                courtName: "Court 1" // Simulated assignment
+            )
+            
+            DispatchQueue.main.async {
+                BookingStore.shared.addBooking(newBooking)
+            }
+            print("Booking saved for slot: \(slot.time)")
+        }
     }
 }
