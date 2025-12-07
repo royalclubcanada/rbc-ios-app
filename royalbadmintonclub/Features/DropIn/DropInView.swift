@@ -175,29 +175,45 @@ struct DropInDetailsSheet: View {
     
     var body: some View {
         NavigationView {
-            List(session.players) { player in
-                HStack {
-                    Image(systemName: "person.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(.blue)
-                    VStack(alignment: .leading) {
-                        Text(player.name)
+            ScrollView {
+                VStack(spacing: 0) {
+                    
+                    // Header
+                    HStack {
+                        Text("Session Players")
                             .font(.headline)
-                        Text(player.status)
-                            .font(.caption)
                             .foregroundColor(.secondary)
+                            .padding(.vertical)
+                        Spacer()
                     }
-                    Spacer()
-                    if player.status == "Charged" {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                    } else {
-                        Image(systemName: "clock.fill")
-                            .foregroundColor(.orange)
+                    .padding(.horizontal)
+                    
+                    VStack(spacing: 0) {
+                        ForEach(0..<6, id: \.self) { index in
+                            VStack(spacing: 0) {
+                                HSCell(index: index, session: session)
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal)
+                                
+                                if index < 5 {
+                                    Divider().padding(.leading)
+                                }
+                            }
+                        }
                     }
+                    .background(Color.white)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    
+                    // Summary Footer
+                    Text("\(6 - session.players.count) spots remaining")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 20)
                 }
-                .padding(.vertical, 4)
+                .padding(.top)
             }
+            .background(Color(.systemGroupedBackground)) // Match List style background
             .navigationTitle(session.timeRangeDisplay)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -209,6 +225,65 @@ struct DropInDetailsSheet: View {
                             .font(.title3)
                     }
                 }
+            }
+        }
+    }
+    
+    // Helper View for Cell
+    func HSCell(index: Int, session: DropInSession) -> some View {
+        HStack {
+            if index < session.players.count {
+                // Active Player
+                let player = session.players[index]
+                
+                Text("\(index + 1)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(width: 20)
+                
+                Image(systemName: "person.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.blue)
+                
+                VStack(alignment: .leading) {
+                    Text(player.name)
+                        .font(.headline)
+                    Text(player.status)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                if player.status == "Charged" {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                } else {
+                    Image(systemName: "clock.fill")
+                        .foregroundColor(.orange)
+                }
+            } else {
+                // Placeholder
+                Text("\(index + 1)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(width: 20)
+                
+                Circle()
+                    .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4]))
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(.secondary.opacity(0.5))
+                
+                Text("Open Slot")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .italic()
+                
+                Spacer()
+                
+                Text("Waiting...")
+                    .font(.caption)
+                    .foregroundColor(.secondary.opacity(0.5))
             }
         }
     }
