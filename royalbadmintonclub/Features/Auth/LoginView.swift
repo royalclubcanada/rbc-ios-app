@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import RealmSwift
 
 struct LoginView: View {
     @StateObject private var network = NetworkManager.shared
@@ -88,28 +89,17 @@ struct LoginView: View {
         isLoading = true
         errorMessage = nil
         
-        // Simulating login bypass for demo purposes
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            isLoading = false
-            NetworkManager.shared.authToken = "demo_bypass_token_123"
-        }
-        
-        /* 
-        // Real API Call (Commented out for Demo)
-        network.login(email: email, password: password)
-            .sink(receiveCompletion: { completion in
+        Task {
+            do {
+                let credentials = Credentials.emailPassword(email: email, password: password)
+                try await RealmManager.shared.login(credentials: credentials)
+                // Success - App state change handled by RealmManager.currentUser observation in App
                 isLoading = false
-                switch completion {
-                case .failure(let error):
-                    errorMessage = error.localizedDescription
-                case .finished:
-                    break
-                }
-            }, receiveValue: { _ in
-                // Success is handled by NetworkManager isAuthenticated publisher
-            })
-            .store(in: &cancellables)
-        */
+            } catch {
+                isLoading = false
+                self.errorMessage = "Login failed: \(error.localizedDescription)"
+            }
+        }
     }
 }
 

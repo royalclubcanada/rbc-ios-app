@@ -28,7 +28,7 @@ struct UserProfileView: View {
                                 .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
                             
                             VStack(spacing: 5) {
-                                Text(network.currentUser?.name ?? "Royal Player")
+                                Text(RealmManager.shared.currentUser?.profile.name ?? "Royal Player")
                                     .font(.title2)
                                     .fontWeight(.bold)
                                 
@@ -88,9 +88,12 @@ struct UserProfileView: View {
                         
                         Spacer(minLength: 20)
                         
-                        // 4. Logout
+                            // 4. Logout
                         Button(action: {
-                            network.logout()
+                            Task {
+                                await RealmManager.shared.logout()
+                                presentationMode.wrappedValue.dismiss()
+                            }
                         }) {
                             Text("Log Out")
                                 .fontWeight(.bold)
@@ -122,11 +125,10 @@ struct UserProfileView: View {
             }
         }
         .onAppear {
-            if let user = network.currentUser {
-                email = user.email
-                if let p = user.phone {
-                    phone = p
-                }
+            if let user = RealmManager.shared.currentUser {
+                email = user.profile.email ?? ""
+                // Phone is not in standard profile, might be in custom data or UserProfile object
+                // For now leave as default or empty
             }
         }
     }

@@ -1,11 +1,23 @@
 import SwiftUI
+import RealmSwift
 
 struct DropInView: View {
-    @StateObject private var manager = DropInManager()
+    @ObservedResults(DropInSession.self) var sessions
+    @EnvironmentObject var realmManager: RealmManager
+    
     @State private var showingPayment = false
-    @State private var selectedSessionId: UUID?
+    @State private var selectedSessionId: ObjectId?
     @State private var playerName = ""
     @State private var showingDetails = false
+    @State private var isJoining = false
+    @State private var isLeaving = false
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    
+    // Telemetry
+    func logEvent(_ eventName: String, parameters: [String: Any] = [:]) {
+        print("📊 Telemetry: \(eventName) - \(parameters)")
+    }
     
     var body: some View {
         NavigationView {
@@ -27,35 +39,129 @@ struct DropInView: View {
                         }
                         .padding()
                         
-                        // Sessions List
-                        ForEach(manager.sessions) { session in
-                            DropInCard(session: session) {
-                                selectedSessionId = session.id
-                                showingPayment = true
-                            } debugAction: {
-                                manager.simulateFilling(sessionId: session.id)
-                            } detailsAction: {
-                                selectedSessionId = session.id
-                                showingDetails = true
+                        // Sessions List (Real-time from Realm)
+                        ForEach(sessions) { session in
+                            DropInCard(
+                                session: session,
+                                currentUserId: realmManager.currentUser?.id ?? "",
+                                joinAction: {
+                                    selectedSessionId = session._id
+                                    showingPayment = true
+                                },
+                                leaveAction: {
+                                    leaveSession(sessionId: session._id)
+                                },
+                                detailsAction: {
+                                    selectedSessionId = session._id
+                                    showingDetails = true
+                                }
+                            )
+                        }
+                        
+                        if sessions.isEmpty {
+                            VStack(spacing: 15) {
+                                Image(systemName: "calendar.badge.exclamationmark")
+                                    .font(.system(size: 50))
+                                    .foregroundColor(.secondary)
+                                Text("No upcoming sessions")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
                             }
+                            .padding(.top, 50)
                         }
                     }
                     .padding(.bottom, 100) // Tab bar spacing
                 }
             }
             .sheet(isPresented: $showingPayment) {
-                // Simplified Payment Sheet for "Hold" simulation
                 DropInPaymentSheet(name: $playerName) {
                     if let id = selectedSessionId {
-                        manager.joinSession(sessionId: id, playerName: playerName)
-                        showingPayment = false
-                        playerName = ""
+                        joinSession(sessionId: id)
                     }
                 }
             }
             .sheet(isPresented: $showingDetails) {
-                if let id = selectedSessionId, let session = manager.sessions.first(where: { $0.id == id }) {
+                if let id = selectedSessionId,
+                   let session = sessions.first(where: { $0._id == id }) {
                     DropInDetailsSheet(session: session)
+                }
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Drop-In"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            }
+        }
+    }
+    
+    func joinSession(sessionId: ObjectId) {
+        guard let user = realmManager.currentUser else { return }
+        
+        isJoining = true
+        logEvent("dropin_join", parameters: ["sessionId": sessionId.stringValue])
+        
+        Task {
+            do {
+                let result = try await user.functions.joinDropIn([
+                    "sessionId": sessionId,
+                    "userId": user.id,
+                    "userName": playerName
+                ]) as Document
+                
+                if let success = result["success"]?.boolValue, success {
+                    await MainActor.run {
+                        isJoining = false
+                        showingPayment = false
+                        playerName = ""
+                        alertMessage = "Successfully joined session!"
+                        showAlert = true
+                        logEvent("dropin_join_success")
+                    }
+                } else {
+                    throw NSError(domain: "DropIn", code: 1, userInfo: [
+                        NSLocalizedDescriptionKey: result["message"]?.stringValue ?? "Session is full"
+                    ])
+                }
+            } catch {
+                await MainActor.run {
+                    isJoining = false
+                    alertMessage = "Failed to join: \(error.localizedDescription)"
+                    showAlert = true
+                    logEvent("dropin_join_failed", parameters: ["error": error.localizedDescription])
+                }
+            }
+        }
+    }
+    
+    func leaveSession(sessionId: ObjectId) {
+        guard let user = realmManager.currentUser else { return }
+        
+        isLeaving = true
+        logEvent("dropin_leave", parameters: ["sessionId": sessionId.stringValue])
+        
+        Task {
+            do {
+                let result = try await user.functions.leaveDropIn([
+                    "sessionId": sessionId,
+                    "userId": user.id
+                ]) as Document
+                
+                if let success = result["success"]?.boolValue, success {
+                    await MainActor.run {
+                        isLeaving = false
+                        alertMessage = "Successfully left session"
+                        showAlert = true
+                        logEvent("dropin_leave_success")
+                    }
+                } else {
+                    throw NSError(domain: "DropIn", code: 2, userInfo: [
+                        NSLocalizedDescriptionKey: result["message"]?.stringValue ?? "Failed to leave"
+                    ])
+                }
+            } catch {
+                await MainActor.run {
+                    isLeaving = false
+                    alertMessage = "Failed to leave: \(error.localizedDescription)"
+                    showAlert = true
+                    logEvent("dropin_leave_failed", parameters: ["error": error.localizedDescription])
                 }
             }
         }
@@ -64,9 +170,14 @@ struct DropInView: View {
 
 struct DropInCard: View {
     let session: DropInSession
+    let currentUserId: String
     let joinAction: () -> Void
-    let debugAction: () -> Void
+    let leaveAction: () -> Void
     let detailsAction: () -> Void
+    
+    var isUserJoined: Bool {
+        session.players.contains { $0.user_id == currentUserId }
+    }
     
     var body: some View {
         Button(action: detailsAction) {
@@ -74,11 +185,11 @@ struct DropInCard: View {
                 // Time & Status
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(session.timeRangeDisplay)
+                        Text(timeRangeDisplay)
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundColor(.primary)
-                        Text(session.status.rawValue)
+                        Text(session.status.capitalized)
                             .font(.caption)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -90,7 +201,7 @@ struct DropInCard: View {
                     
                     // Player Count Badge
                     VStack {
-                        Text("\(session.playerCount)/\(session.maxPlayers)")
+                        Text("\(session.players.count)/\(session.maxCapacity)")
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundColor(.primary)
@@ -109,32 +220,36 @@ struct DropInCard: View {
                         
                         Capsule()
                             .fill(statusColor)
-                            .frame(width: geo.size.width * CGFloat(session.playerCount) / CGFloat(session.maxPlayers), height: 8)
-                            .animation(.spring(), value: session.playerCount)
+                            .frame(width: geo.size.width * CGFloat(session.players.count) / CGFloat(session.maxCapacity), height: 8)
+                            .animation(.spring(), value: session.players.count)
                     }
                 }
                 .frame(height: 8)
                 
                 // Actions
-                if session.status == .open {
+                if session.status == "open" {
                     HStack {
-                        Button(action: joinAction) {
-                            Text(session.isFull ? "Full" : "Join ($15 Hold)")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(session.isFull ? Color.gray : Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-                        .disabled(session.isFull)
-                        
-                        // Debug Button (Hidden for prod, visible for demo)
-                        Button(action: debugAction) {
-                            Image(systemName: "person.3.fill")
-                                .padding()
-                                .background(Color.orange.opacity(0.2))
-                                .clipShape(Circle())
+                        if isUserJoined {
+                            Button(action: leaveAction) {
+                                Text("Leave Session")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(Color.red.opacity(0.8))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                            }
+                        } else {
+                            Button(action: joinAction) {
+                                Text(session.isFull ? "Full" : "Join ($15 Hold)")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(session.isFull ? Color.gray : Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                            }
+                            .disabled(session.isFull)
                         }
                     }
                 } else {
@@ -150,20 +265,29 @@ struct DropInCard: View {
         .buttonStyle(.plain)
     }
     
+    var timeRangeDisplay: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        let start = formatter.string(from: session.startTime)
+        let end = formatter.string(from: session.endTime)
+        return "\(start) - \(end)"
+    }
+    
     var statusColor: Color {
         switch session.status {
-        case .open: return .blue
-        case .filled: return .yellow
-        case .confirmed: return .green
-        case .failed: return .red
+        case "open": return .blue
+        case "filled": return .yellow
+        case "confirmed": return .green
+        case "failed": return .red
+        default: return .gray
         }
     }
     
     var statusMessage: String {
         switch session.status {
-        case .confirmed: return "Session Confirmed! Courts Booked."
-        case .failed: return "Cancelled. Not enough courts."
-        case .filled: return "Verifying availability..."
+        case "confirmed": return "Session Confirmed! Courts Booked."
+        case "failed": return "Cancelled. Not enough courts."
+        case "filled": return "Verifying availability..."
         default: return ""
         }
     }

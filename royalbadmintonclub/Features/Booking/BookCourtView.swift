@@ -1,9 +1,14 @@
 import SwiftUI
 import Combine
 import Foundation
+import RealmSwift
 
 struct BookCourtView: View {
-    @EnvironmentObject var network: NetworkManager
+    let location: Location
+    
+    @ObservedResults(Booking.self) var bookings
+    @EnvironmentObject var realmManager: RealmManager
+    
     @State private var selectedDate = Date()
     @State private var showingStripe = false
     @State private var showingProfile = false
@@ -13,7 +18,6 @@ struct BookCourtView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var isChecking = false
-    @State private var cancellables = Set<AnyCancellable>()
     
     // Generate full day slots
     var allSlots: [Slot] {
@@ -52,31 +56,42 @@ struct BookCourtView: View {
     
     func checkAndBook(slot: Slot) {
         triggerHaptic()
-        isChecking = true
-        selectedSlot = slot
         
+        // Check if court is available for this slot by querying local bookings
+        let availableCount = getAvailableCourtCount(for: slot)
+        
+        if availableCount > 0 {
+            selectedSlot = slot
+            showingStripe = true // Show payment screen
+        } else {
+            alertMessage = "Sorry, fully booked for \(slot.time)"
+            showAlert = true
+        }
+    }
+    
+    // Calculate available courts by checking existing bookings
+    func getAvailableCourtCount(for slot: Slot) -> Int {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let dateKey = formatter.string(from: selectedDate)
+        formatter.dateFormat = "HH:mm"
+        guard let slotTime = formatter.date(from: slot.time) else { return 0 }
         
-        network.checkCourtAvailability(date: dateKey, slotTime: slot.time)
-            .sink(receiveCompletion: { completion in
-                isChecking = false
-                switch completion {
-                case .failure(let error):
-                    alertMessage = "Error: \(error.localizedDescription)"
-                    showAlert = true
-                case .finished: break
-                }
-            }, receiveValue: { count in
-                if count > 0 {
-                    showingStripe = true
-                } else {
-                    alertMessage = "Sorry, fully booked for \(slot.time)"
-                    showAlert = true
-                }
-            })
-            .store(in: &cancellables)
+        // Combine selected date with slot time
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.year, .month, .day], from: selectedDate)
+        let slotComponents = calendar.dateComponents([.hour, .minute], from: slotTime)
+        components.hour = slotComponents.hour
+        components.minute = slotComponents.minute
+        
+        guard let startTime = calendar.date(from: components) else { return 0 }
+        let endTime = calendar.date(byAdding: .hour, value: 1, to: startTime)!
+        
+        // Count bookings that conflict with this time slot
+        let conflictingBookings = bookings.filter { booking in
+            booking.startTime < endTime && booking.endTime > startTime
+        }
+        
+        let totalCourts = location.courtCount
+        return totalCourts - conflictingBookings.count
     }
 
     var body: some View {
@@ -126,9 +141,9 @@ struct BookCourtView: View {
                             }
                             .frame(height: 300)
                         } else {
-                            LiquidSectionView(title: "Morning (6AM - 12PM)", slots: morningSlots, onSelect: checkAndBook)
-                            LiquidSectionView(title: "Afternoon (12PM - 5PM)", slots: afternoonSlots, onSelect: checkAndBook)
-                            LiquidSectionView(title: "Evening (5PM - 12AM)", slots: eveningSlots, onSelect: checkAndBook)
+                            LiquidSectionView(title: "Morning (6AM - 12PM)", slots: morningSlots, onSelect: checkAndBook, getAvailableCount: getAvailableCourtCount)
+                            LiquidSectionView(title: "Afternoon (12PM - 5PM)", slots: afternoonSlots, onSelect: checkAndBook, getAvailableCount: getAvailableCourtCount)
+                            LiquidSectionView(title: "Evening (5PM - 12AM)", slots: eveningSlots, onSelect: checkAndBook, getAvailableCount: getAvailableCourtCount)
                         }
                     }
                     .padding(.top)
@@ -137,7 +152,9 @@ struct BookCourtView: View {
             }
             .navigationBarHidden(true)
             .sheet(isPresented: $showingStripe) {
-                StripeCheckoutView(slot: selectedSlot)
+                if let slot = selectedSlot {
+                    StripeCheckoutView(slot: slot, selectedDate: selectedDate, location: location)
+                }
             }
             .sheet(isPresented: $showingProfile) {
                 UserProfileView()
@@ -201,6 +218,7 @@ struct LiquidSectionView: View {
     let title: String
     let slots: [Slot]
     let onSelect: (Slot) -> Void
+    let getAvailableCount: (Slot) -> Int // New parameter
     
     let columns = [
         GridItem(.flexible()),
@@ -216,7 +234,7 @@ struct LiquidSectionView: View {
             
             LazyVGrid(columns: columns, spacing: 15) {
                 ForEach(slots) { slot in
-                    LiquidSlotCard(slot: slot)
+                    LiquidSlotCard(slot: slot, availableCount: getAvailableCount(slot))
                         .onTapGesture {
                             onSelect(slot)
                         }
@@ -229,6 +247,7 @@ struct LiquidSectionView: View {
 
 struct LiquidSlotCard: View {
     let slot: Slot
+    let availableCount: Int
     
     var body: some View {
         VStack(spacing: 12) {
@@ -238,12 +257,12 @@ struct LiquidSlotCard: View {
                 .fontWeight(.bold)
                 .foregroundColor(.primary)
             
-            // Status Indicator
+            // Status Indicator (Real-time availability)
             HStack {
                 Circle()
-                    .fill(Color.green)
+                    .fill(availableCount > 0 ? Color.green : Color.red)
                     .frame(width: 8, height: 8)
-                Text("Available")
+                Text(availableCount > 0 ? "\(availableCount) Available" : "Full")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }

@@ -11,12 +11,12 @@ struct APIResponse<T: Codable>: Codable {
 
 // MARK: - Auth Models
 
-struct User: Codable, Identifiable {
-    var id: String { email } // Assuming email is unique or use a real ID if available
+struct UserDTO: Codable, Identifiable {
+    var id: String { email }
     let email: String
     let name: String?
     let phone: String?
-    let token: String? // Assuming token comes back in user object or separate
+    let token: String?
 }
 
 struct LoginRequest: Codable {
@@ -26,8 +26,8 @@ struct LoginRequest: Codable {
     let device_token: String
 }
 
-struct AuthData: Codable {
-    let user: User
+struct AuthDataDTO: Codable {
+    let user: UserDTO
     let token: String
 }
 
@@ -72,7 +72,7 @@ enum Location: String, Codable {
 
 // MARK: - Booking Models
 
-struct Booking: Codable, Identifiable {
+struct BookingDTO: Codable, Identifiable {
     let id: String
     let date: String
     let slotTime: String

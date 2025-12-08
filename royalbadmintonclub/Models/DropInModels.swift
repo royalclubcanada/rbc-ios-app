@@ -7,17 +7,17 @@ enum DropInStatus: String, Codable {
     case failed = "Failed"     // Not enough courts
 }
 
-struct DropInPlayer: Identifiable, Codable {
+struct DropInPlayerDTO: Identifiable, Codable {
     var id = UUID()
     let name: String
     var status: String // "Hold", "Charged", "Refunded"
 }
 
-struct DropInSession: Identifiable, Codable {
+struct DropInSessionDTO: Identifiable, Codable {
     var id = UUID()
     let startTime: String // e.g., "17:00"
     let endTime: String   // e.g., "19:00"
-    var players: [DropInPlayer] = []
+    var players: [DropInPlayerDTO] = []
     var maxPlayers: Int = 6
     var status: DropInStatus = .open
     

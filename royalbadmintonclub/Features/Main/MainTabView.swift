@@ -12,7 +12,12 @@ struct MainTabView: View {
             Group {
                 switch selectedTab {
                 case 0:
-                    BookCourtView()
+                    if let location = selectedLocation {
+                        BookCourtView(location: location)
+                    } else {
+                        // Fallback or error state
+                        Text("Please select a location")
+                    }
                 case 1:
                     DropInView()
                 case 2:

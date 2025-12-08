@@ -1,7 +1,9 @@
 import SwiftUI
+import RealmSwift
 
-struct Event: Identifiable {
-    let id = UUID()
+// Note: Event model is in Models/Realm/Event.swift but we need a DTO for EventDetails display
+struct EventDTO: Identifiable {
+    let id: String
     let title: String
     let date: String
     let time: String
@@ -14,30 +16,7 @@ struct Event: Identifiable {
 }
 
 struct EventsView: View {
-    let events = [
-        Event(
-            title: "Royal Clash Tournament",
-            date: "6 Feb 2026",
-            time: "10:00 AM - 6:00 PM",
-            location: "Main Court Hall",
-            entryFee: "$25 / Player",
-            description: "Join the ultimate showdown! Singles and Doubles categories available. Prizes worth $5000.",
-            rules: ["Feather shuttles only", "Standard BWF scoring", "Non-marking shoes mandatory"],
-            color: .blue,
-            icon: "trophy.fill"
-        ),
-        Event(
-            title: "Winter Camp",
-            date: "starts: 25 Dec 2025",
-            time: "9:00 AM - 1:00 PM (Daily)",
-            location: "Training Center",
-            entryFee: "$150 / Person",
-            description: "Intensive 3-day training camp with pro coaches. Perfect for intermediate players looking to level up their skills.",
-            rules: ["Bring your own racket", "Water and snacks provided", "Certificate on completion"],
-            color: .cyan,
-            icon: "snowflake"
-        )
-    ]
+    @ObservedResults(Event.self, sortDescriptor: SortDescriptor(keyPath: "date", ascending: true)) var events
     
     var body: some View {
         NavigationView {
@@ -60,9 +39,21 @@ struct EventsView: View {
                         .padding(.horizontal)
                         .padding(.top)
                         
-                        // Events List
+                        // Events List (Real-time from Realm)
                         ForEach(events) { event in
                             EventCard(event: event)
+                        }
+                        
+                        if events.isEmpty {
+                            VStack(spacing: 15) {
+                                Image(systemName: "calendar.badge.exclamationmark")
+                                    .font(.system(size: 50))
+                                    .foregroundColor(.secondary)
+                                Text("No upcoming events")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.top, 50)
                         }
                     }
                     .padding(.bottom, 100)
@@ -74,7 +65,7 @@ struct EventsView: View {
 }
 
 struct EventCard: View {
-    let event: Event
+    @ObservedRealmObject var event: Event
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -86,25 +77,25 @@ struct EventCard: View {
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
                     
-                    Text(event.date)
+                    Text(formattedDate)
                         .font(.headline)
-                        .foregroundColor(event.color)
+                        .foregroundColor(.blue)
                         .padding(.top, 2)
                 }
                 
                 Spacer()
                 
-                Image(systemName: event.icon)
+                Image(systemName: "trophy.fill")
                     .font(.system(size: 30))
-                    .foregroundColor(event.color)
+                    .foregroundColor(.blue)
                     .padding()
-                    .background(event.color.opacity(0.1))
+                    .background(Color.blue.opacity(0.1))
                     .clipShape(Circle())
             }
             
             Divider()
             
-            Text(event.description)
+            Text(event.details)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .lineLimit(3)
@@ -116,13 +107,19 @@ struct EventCard: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(LinearGradient(colors: [event.color, event.color.opacity(0.8)], startPoint: .leading, endPoint: .trailing))
+                    .background(LinearGradient(colors: [.blue, Color.blue.opacity(0.8)], startPoint: .leading, endPoint: .trailing))
                     .cornerRadius(12)
-                    .shadow(color: event.color.opacity(0.3), radius: 5, x: 0, y: 5)
+                    .shadow(color: Color.blue.opacity(0.3), radius: 5, x: 0, y: 5)
             }
         }
         .padding()
         .liquidGlass()
         .padding(.horizontal)
+    }
+    
+    var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: event.date)
     }
 }
