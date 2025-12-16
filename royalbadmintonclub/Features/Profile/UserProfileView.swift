@@ -1,4 +1,6 @@
 import SwiftUI
+import Realm
+import Combine
 
 struct UserProfileView: View {
     @EnvironmentObject var network: NetworkManager
@@ -28,7 +30,7 @@ struct UserProfileView: View {
                                 .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
                             
                             VStack(spacing: 5) {
-                                Text(RealmManager.shared.currentUser?.profile.name ?? "Royal Player")
+                                Text(network.currentUser?.first_name ?? "Royal Player")
                                     .font(.title2)
                                     .fontWeight(.bold)
                                 
@@ -51,8 +53,8 @@ struct UserProfileView: View {
                                 .foregroundColor(.secondary)
                             
                             VStack(spacing: 15) {
-                                ProfileField(icon: "envelope.fill", title: "Email", text: $email)
-                                ProfileField(icon: "phone.fill", title: "Phone", text: $phone)
+                                ProfileField(icon: "envelope.fill", title: "Email", text: .constant(network.currentUser?.email ?? ""))
+                                ProfileField(icon: "phone.fill", title: "Phone", text: .constant(network.currentUser?.phone_number ?? ""))
                             }
                             
                             Button(action: {
@@ -91,7 +93,7 @@ struct UserProfileView: View {
                             // 4. Logout
                         Button(action: {
                             Task {
-                                await RealmManager.shared.logout()
+                                network.logout()
                                 presentationMode.wrappedValue.dismiss()
                             }
                         }) {
@@ -116,7 +118,7 @@ struct UserProfileView: View {
                         presentationMode.wrappedValue.dismiss()
                     }) {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary)
+                        .foregroundColor(.secondary)
                     }
                 }
             }
@@ -125,13 +127,13 @@ struct UserProfileView: View {
             }
         }
         .onAppear {
-            if let user = RealmManager.shared.currentUser {
-                email = user.profile.email ?? ""
-                // Phone is not in standard profile, might be in custom data or UserProfile object
-                // For now leave as default or empty
-            }
+            network.getProfile()
+                .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+                .store(in: &cancellables)
         }
     }
+    
+    @State private var cancellables = Set<AnyCancellable>()
 }
 
 // MARK: - Components

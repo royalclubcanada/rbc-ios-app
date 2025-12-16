@@ -44,12 +44,15 @@ struct MyBookingsView: View {
                 }
             }
             .navigationBarHidden(true)
+            .onAppear {
+                store.reload()
+            }
         }
     }
 }
 
 struct BookingRow: View {
-    let booking: Booking
+    let booking: BookingDTO
     @EnvironmentObject var store: BookingStore
     
     var statusColor: Color {

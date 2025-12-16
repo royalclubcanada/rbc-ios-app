@@ -32,4 +32,12 @@ class DropInSession: Object, ObjectKeyIdentifiable {
     var isFull: Bool {
         return players.count >= maxCapacity
     }
+    
+    var timeRangeDisplay: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        let start = formatter.string(from: startTime)
+        let end = formatter.string(from: endTime)
+        return "\(start) - \(end)"
+    }
 }

@@ -6,8 +6,8 @@ import RealmSwift
 struct BookCourtView: View {
     let location: Location
     
-    @ObservedResults(Booking.self) var bookings
-    @EnvironmentObject var realmManager: RealmManager
+    @EnvironmentObject var network: NetworkManager
+    // Removed Realm environment object as we are using NetworkManager
     
     @State private var selectedDate = Date()
     @State private var showingStripe = false
@@ -18,6 +18,8 @@ struct BookCourtView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var isChecking = false
+    @State private var availability: [String: Int] = [:] // Map "HH:mm" -> Count
+    @State private var cancellables = Set<AnyCancellable>()
     
     // Generate full day slots
     var allSlots: [Slot] {
@@ -57,7 +59,7 @@ struct BookCourtView: View {
     func checkAndBook(slot: Slot) {
         triggerHaptic()
         
-        // Check if court is available for this slot by querying local bookings
+        // Check if court is available for this slot
         let availableCount = getAvailableCourtCount(for: slot)
         
         if availableCount > 0 {
@@ -69,29 +71,42 @@ struct BookCourtView: View {
         }
     }
     
-    // Calculate available courts by checking existing bookings
+    // Calculate available courts from fetched data
     func getAvailableCourtCount(for slot: Slot) -> Int {
+        return availability[slot.time] ?? 0
+    }
+    
+    func fetchAvailability() {
+        isChecking = true
+        availability = [:] // Reset
+        
         let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        guard let slotTime = formatter.date(from: slot.time) else { return 0 }
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateString = formatter.string(from: selectedDate)
         
-        // Combine selected date with slot time
-        let calendar = Calendar.current
-        var components = calendar.dateComponents([.year, .month, .day], from: selectedDate)
-        let slotComponents = calendar.dateComponents([.hour, .minute], from: slotTime)
-        components.hour = slotComponents.hour
-        components.minute = slotComponents.minute
+        let times = allSlots.map { $0.time }
         
-        guard let startTime = calendar.date(from: components) else { return 0 }
-        let endTime = calendar.date(byAdding: .hour, value: 1, to: startTime)!
-        
-        // Count bookings that conflict with this time slot
-        let conflictingBookings = bookings.filter { booking in
-            booking.startTime < endTime && booking.endTime > startTime
+        // Create a publisher for each time slot check
+        let publishers = times.map { time in
+            network.checkCourtAvailability(date: dateString, slotTime: time)
+                .map { count in (time, count) }
+                .catch { _ in Just((time, 0)) } // Default to 0 on error
+                .eraseToAnyPublisher()
         }
         
-        let totalCourts = location.courtCount
-        return totalCourts - conflictingBookings.count
+        Publishers.MergeMany(publishers)
+            .collect()
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                isChecking = false
+            } receiveValue: { results in
+                var newAvailability: [String: Int] = [:]
+                for (time, count) in results {
+                    newAvailability[time] = count
+                }
+                self.availability = newAvailability
+            }
+            .store(in: &cancellables)
     }
 
     var body: some View {
@@ -162,6 +177,12 @@ struct BookCourtView: View {
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
+        }
+        .onAppear {
+            fetchAvailability()
+        }
+        .onChange(of: selectedDate) {
+            fetchAvailability()
         }
     }
 }

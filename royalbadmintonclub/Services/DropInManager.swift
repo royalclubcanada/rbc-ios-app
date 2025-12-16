@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 class DropInManager: ObservableObject {
-    @Published var sessions: [DropInSession] = []
+    @Published var sessions: [DropInSessionDTO] = []
     
     // Hardcoded slots times
     private let timeSlots = [
@@ -22,7 +22,7 @@ class DropInManager: ObservableObject {
     
     func generateDailySlots() {
         self.sessions = timeSlots.map { start, end in
-            DropInSession(startTime: start, endTime: end)
+            DropInSessionDTO(startTime: start, endTime: end)
         }
     }
     
@@ -34,7 +34,7 @@ class DropInManager: ObservableObject {
         if session.isFull { return }
         
         // Add Player (Hold Status)
-        let newPlayer = DropInPlayer(name: playerName, status: "Hold")
+        let newPlayer = DropInPlayerDTO(name: playerName, status: "Hold")
         sessions[index].players.append(newPlayer)
         
         // Check triggers
@@ -93,12 +93,12 @@ class DropInManager: ObservableObject {
         formatter.dateFormat = "yyyy-MM-dd"
         let dateString = formatter.string(from: Date())
         
-        let newBooking = Booking(
-            id: UUID().uuidString,
-            date: dateString,
-            slotTime: sessions[index].startTime,
-            status: "confirmed",
-            courtName: "Drop-In Group"
+        let newBooking = BookingDTO(
+            _id: UUID().uuidString,
+            booking_date: dateString,
+            is_reserved: true,
+            courtDetails: BookingDTO.BookingCourtDetails(court_name: "Drop-In Group", venue_id: "DropIn"),
+            slotDetails: BookingDTO.BookingSlotDetails(slot_time: sessions[index].startTime, price: 0.0)
         )
         
         DispatchQueue.main.async {

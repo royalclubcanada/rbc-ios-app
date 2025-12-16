@@ -1,0 +1,138 @@
+Users / ContactUsQuery / /user/bookingQuery -> {{url}}/api/user/bookingQuery
+Users / ContactUsQuery / user/contactUsQuery -> {{url}}/api/user/contactUsQuery
+Users / CourtFinder / Cart / user/cart -> {{url}}/api/user/addToCart
+Users / CourtFinder / Cart / user/cart -> {{url}}/api/user/cart?device_id=22bed6bb-4533-45e7-b14b-430405868647
+Users / CourtFinder / Cart / user/removeCartItem -> {{url}}/api/user/removeCartItem/:cart_item_id
+Users / CourtFinder / Cart / user/cartOrderConfirmation -> {{url}}/api/user/cartOrderConfirmation?cart_id=662ff15be07dbedc57a8cb4e&venue_id=65b611f63e623c2036fbdcdd
+Users / CourtFinder / Cart / user/bookingByCart -> {{url}}/api/user/bookingByCart
+Users / CourtFinder / user/court -> {{url}}/api/user/court?venue_id=65b611f63e623c2036fbdcdd&sport_type=1&date=2024-10-06
+Users / CourtFinder / user/courtBook -> {{url}}/api/user/courtBook
+Users / CourtFinder / user/slot -> {{url}}/api/user/slot?court_id=65a6cc4f11fc466eada5e100&date=2024-08-31
+Users / CourtFinder / user/confirmBooking -> {{url}}/api/user/confirmBooking
+Users / CourtFinder / user/orderConfirmation -> {{url}}/api/user/orderConfirmation?venue_id=65b611f63e623c2036fbdcdd&slot_id=65d3e1061f194d7f4ae9a3e0&date=2024-05-22
+Users / CourtFinder / user/courtBookMultiple -> {{url}}/api/user/courtBookMultiple
+Users / Venues / user/venue -> {{url}}/api/user/venue?limit=12&page=1&sport_type=1
+Users / Dashboard / user/dashboard -> {{url}}/api/user/dashboard?page=1&limit=10
+Users / myBoooking / user/myBooking -> {{url}}/api/user/myBooking?page=1&limit=10&listing_for=1
+Users / myBoooking / /user/bookingDetails -> {{url}}/api/user/bookingDetails?bookingId=6622c7972b5fa946d595a3a3
+Users / Stripe / user/createCustomer -> {{url}}/api/user/createCustomer
+Users / Stripe / user/createPaymentIntent -> {{url}}/api/user/createPaymentIntent
+Users / Membership / user/membership -> {{url}}/api/user/membership?page=1&limit=10&membership_id=65edd66130b9087359a4e916
+Users / Membership / user/buyMembership -> {{url}}/api/user/buyMembership
+Users / CartBooking / user/addToCart -> {{url}}/api/user/addToCart
+Users / Training / user/training -> {{url}}/api/user/training?page=1&limit=10&sport_type=1&training_type=2
+Users / Training / user/trainingCategories -> {{url}}/api/user/trainingCategories
+Users / Training / user/trainingSlots -> {{url}}/api/user/trainingSlots
+Users / StudentsAndKidsManagement / user/student -> {{url}}/api/user/student
+Users / StudentsAndKidsManagement / user/student -> {{url}}/api/user/student?page=1&limit=10&venue_id=65b611f63e623c2036fbdcdd
+Users / StudentsAndKidsManagement / user/student/:id -> {{url}}/api/user/student/:id
+Users / StudentsAndKidsManagement / user/student -> {{url}}/api/user/student
+Users / TrainingBookings / user/bookTraining -> {{url}}/api/user/trainingBooking
+Users / TrainingBookings / user/bookTraining -> {{url}}/api/user/bookTraining?page=1&limit=10&
+Users / TrainingBookings / user/bookTrainingPayment -> {{url}}/api/user/bookTrainingPayment
+Users / Blogs / user/blogs -> {{url}}/api/user/blogs?blog_id=67b774fd432c783b7e27382b&page=1&limit=10&is_active=1
+Users / ParentalConsentWaiver / user/parentalWaiverConsent -> {{url}}/api/user/parentalWaiverConsent
+Users / AI-Based-Enquiry / user/checkCourtAvailability?Date=2024-10-01&slotTime=07:00 -> {{url}}/api/user/checkCourtAvailability?date=2025-11-15&slotTime=22:00
+Users / DropIn-User / user/dropInDetails -> {{url}}/api/user/dropInDetails?page=1&limit=10&search
+Users / user/profile -> {{url}}/api/user/profile
+Users / /user/socialLogin -> {{url}}/api/user/socialLogin
+Users / user/updateProfile -> {{url}}/api/user/updateProfile
+Users / user/verifyOtp -> {{url}}/api/user/verifyOtp
+Users / user/register -> {{url}}/api/user/register
+Users / user/resetPassword -> {{url}}/api/user/resetPassword
+Users / user/changePassword -> {{url}}/api/user/changePassword
+Users / user/login -> {{url}}/api/user/login
+Users / user/logout -> {{url}}/api/user/logout
+Users / user/forgotPassword -> {{url}}/api/user/forgotPassword
+Users / cms -> {{url}}/api/user/cms?type=termsAndConditions
+Users / user/sendOtp -> {{url}}/api/user/sendOtp
+Admin / CMS Managment / api/admin/addCms -> {{url}}/api/admin/addCms
+Admin / CMS Managment / cms -> {{url}}/api/admin/cms?type=aboutUs&is_active=1&page=1&limit=10
+Admin / CMS Managment / admin/editCms -> {{url}}/api/admin/editCms
+Admin / CourtManangement / admin/addCourt -> {{url}}/api/admin/addCourt
+Admin / CourtManangement / admin/court -> {{url}}/api/admin/court?page=1&limit=10&sport_type=2&venue_id=65b611f63e623c2036fbdcdd&is_active=1
+Admin / CourtManangement / admin/activeInactiveCourt -> {{url}}/api/admin/activeInactiveCourt
+Admin / CourtManangement / admin/deleteCourt -> {{url}}/api/admin/deleteCourt/:court_id
+Admin / VenueManangement / admin/addVenue -> {{url}}/api/admin/addVenue
+Admin / VenueManangement / admin/venue -> {{url}}/api/admin/venue?is_active=1&sport_type=1
+Admin / VenueManangement / admin/editVenue -> {{url}}/api/admin/editVenue
+Admin / VenueManangement / admin/activeInactiveVenue -> {{url}}/api/admin/activeInactiveVenue
+Admin / SlotsManagement / specialDatesPricing / admin/addSpecialDatesPricing -> {{url}}/api/admin/addSpecialDatesPricing
+Admin / SlotsManagement / specialDatesPricing / admin/specialPricing -> {{url}}/api/admin/specialPricing?page=1&limit=10&sport_type=1
+Admin / SlotsManagement / specialDatesPricing / admin/specialDatesPricing -> {{url}}/api/admin/specialDatesPricing
+Admin / SlotsManagement / specialDatesPricing / admin/specialDatesPricing -> {{url}}/api/admin/specialDatesPricing/:special_price_id
+Admin / SlotsManagement / admin/addSlot -> {{url}}/api/admin/addSlot
+Admin / SlotsManagement / admin/slot -> {{url}}/api/admin/slot?page=1&limit=10&sport_type=1&venue_id=65b611f63e623c2036fbdcdd
+Admin / SlotsManagement / admin/editSlot -> {{url}}/api/admin/editSlot
+Admin / SlotsManagement / admin/activeInactiveSlot -> {{url}}/api/admin/activeInactiveSlot
+Admin / SlotsManagement / admin/deleteSlot/:slot_id -> {{url}}/api/admin/deleteSlot/:slot_id
+Admin / memberShipManagement / admin/addMembership -> {{url}}/api/admin/addMembership
+Admin / memberShipManagement / admin/membership -> {{url}}/api/admin/membership?page=1&limit=10&is_active=1
+Admin / memberShipManagement / admin/editMembership -> {{url}}/api/admin/editMembership
+Admin / memberShipManagement / admin/activeInactiveMembership -> {{url}}/api/admin/activeInactiveMembership
+Admin / UsersManagement / admin/user -> {{url}}/api/admin/user?page=1&limit=10&search=Lastname
+Admin / UsersManagement / admin/activeInactiveUser -> {{url}}/api/admin/activeInactiveUser
+Admin / UsersManagement / admin/userProfile -> {{url}}/api/admin/userProfile?user_id=65b4026b0604a2334dda67eb
+Admin / BookingManagement / user/booking -> {{url}}/api/admin/booking?page=1&limit=10&is_reserved=true
+Admin / BookingManagement / admin/bulkBooking -> {{url}}/api/admin/bulkBooking
+Admin / BookingManagement / admin/bookingDashboard -> {{url}}/api/admin/bookingDashboard?date=2024-03-17&sport_type=2&venue_id=65b611f63e623c2036fbdcdd
+Admin / BookingManagement / admin/bulkBooking -> {{url}}/api/admin/bulkBooking?page=1&limit=10
+Admin / BookingManagement / admin/bulkBooking/:bulk_booking_id -> {{url}}/api/admin/bulkBooking/:bulk_booking_id
+Admin / BookingManagement / /admin/updateBulkBookingStatus -> {{url}}/api/admin/updateBulkBookingStatus
+Admin / BookingManagement / admin/updateBookingStatus -> {{url}}/api/admin/updateBookingStatus
+Admin / DashboardManagement / admin/dashboard -> {{url}}/api/admin/dashboard?type=3&date=04/05/2024
+Admin / Training / TrainingManangement / admin/addTraining -> {{url}}/api/admin/addTraining
+Admin / Training / TrainingManangement / admin/training -> {{url}}/api/admin/training?page=1&limit=10&is_public=1
+Admin / Training / TrainingManangement / admin/editTraining -> {{url}}/api/admin/editTraining
+Admin / Training / TrainingManangement / admin/activeInactiveTraining -> {{url}}/api/admin/activeInactiveTraining
+Admin / Training / TrainingManangement / admin/deleteTraining/:id -> {{url}}/api/admin/deleteTraining/:id
+Admin / Training / TrainingCategories / addTrainingCategory -> {{url}}/api/admin/addTrainingCategory
+Admin / Training / TrainingCategories / admin/trainingCategory -> {{url}}/api/admin/trainingCategory?page=1&limit=10&sport_type=1
+Admin / Training / TrainingCategories / admin/activeInactiveTrainingCategory -> {{url}}/api/admin/activeInactiveTrainingCategory
+Admin / Training / TrainingCategories / admin/editTrainingCategory -> {{url}}/api/admin/editTrainingCategory
+Admin / Training / TrainingCategories / deleteTrainingCategory/:id -> {{url}}/api/admin/deleteTrainingCategory/:id
+Admin / Training / CoachManagement / admin/addCoach -> {{url}}/api/admin/addCoach
+Admin / Training / CoachManagement / admin/coach -> {{url}}/api/admin/coach
+Admin / Training / CoachManagement / admin/editCoach -> {{url}}/api/admin/editCoach
+Admin / Training / CoachManagement / admin/activeInactiveCoach -> {{url}}/api/admin/activeInactiveCoach
+Admin / Training / CoachManagement / admin/deleteCoach/:coach_id -> {{url}}/api/admin/deleteCoach/:coach_id
+Admin / Training / TrainingSlots Management / /addTrainingSlots -> {{url}}/api/admin/addTrainingSlots
+Admin / Training / TrainingSlots Management / trainingSlots -> {{url}}/api/admin/trainingSlots?page=1&limit=10&is_active=1&training_type=1
+Admin / Training / TrainingSlots Management / admin/activeInactiveTrainingSlots -> {{url}}/api/admin/activeInactiveTrainingSlots
+Admin / Training / TrainingSlots Management / admin/deleteTrainingSlots/:id -> {{url}}/api/admin/deleteTrainingSlots/:id
+Admin / Training / TrainingSlots Management / admin/editTrainingSlots -> {{url}}/api/admin/editTrainingSlots
+Admin / Training / trainingBatches / admin/addTrainingBatch -> {{url}}/api/admin/addTrainingBatch
+Admin / Training / trainingBatches / admin/trainingBatches -> {{url}}/api/admin/trainingBatches?page=1&limit=10&is_active=1&search=shubh
+Admin / Training / trainingBatches / editTrainingBatches -> {{url}}/api/admin/editTrainingBatches
+Admin / Training / trainingBatches / /admin/activeInactiveTrainingBatches -> {{url}}/api/admin/activeInactiveTrainingBatches
+Admin / Training / trainingBatches / admin/deleteTrainingBatches/:id -> {{url}}/api/admin/deleteTrainingBatches/:id
+Admin / TrainingBookings / assignBookingToBatches / admin/assignStudentToTrainingBatches -> {{url}}/api/admin/assignStudentToTrainingBatches
+Admin / TrainingBookings / assignBookingToBatches / admin/trainingBatchStudents -> {{url}}/api/admin/trainingBatchStudents?page=1&limit=10&training_batch_id=672a6e8a65ce8ae6bdd3153c
+Admin / TrainingBookings / admin/trainingBookings -> {{url}}/api/admin/trainingBookings?page=1&limit=10
+Admin / TrainingBookings / admin/trainingBooking -> {{url}}/api/admin/trainingBooking
+Admin / StudentsAndKidsManagement / admin/student -> {{url}}/api/admin/student
+Admin / StudentsAndKidsManagement / admin/student -> {{url}}/api/admin/student?page=1&limit=10&search=Teresa Valenton
+Admin / StudentsAndKidsManagement / admin/student/:id -> {{url}}/api/admin/student/:id
+Admin / StudentsAndKidsManagement / admin/student -> {{url}}/api/admin/student
+Admin / KidsWithBookingsMangement / admin/trainingBookingKids -> {{url}}/api/admin/trainingBookingKids?page=1&limit=10
+Admin / BlogsManagement / admin/blogs -> {{url}}/api/admin/blogs
+Admin / BlogsManagement / admin/blogs -> {{url}}/api/admin/blogs?page=1&limit=10&search=yt
+Admin / BlogsManagement / admin/blogs -> {{url}}/api/admin/blogs/:blog_id
+Admin / BlogsManagement / admin/blogs -> {{url}}/api/admin/blogs
+Admin / BlogsManagement / admin/blogs -> {{url}}/api/admin/blogs
+Admin / UploadStudents / admin/uploadStudents -> {{url}}/api/admin/uploadStudents
+Admin / parentalWaiverFormData / admin/parentalWaiverConsents -> {{url}}/api/admin/parentalWaiverConsents?page=1&limit=10&search
+Admin / parentalWaiverFormData / admin/parentalWaiverConsentDetails -> {{url}}/api/admin/parentalWaiverConsentDetails?id=690c10b82fbb560fe67e6c59
+Admin / DropIn-Flow / dropin/addDropIn -> {{url}}/api/dropin/addDropIn
+Admin / DropIn-Flow / dropin/editDropIn -> {{url}}/api/dropin/editDropIn
+Admin / DropIn-Flow / dropin/dropInList -> {{url}}/api/dropin/dropInDetails?page=1&limit=10&search
+Admin / DropIn-Flow / dropin/deleteDropIn/:dropin_id -> {{url}}/api/dropin/deleteDropIn/:dropin_id
+Admin / admin/register -> {{url}}/api/admin/register
+Admin / /admin/login -> {{url}}/api/admin/login
+Admin / admin/changePassword -> {{url}}/api/admin/changePassword
+Admin / admin/resetPassword -> {{url}}/api/admin/resetPassword
+Admin / admin/forgotPassword -> {{url}}/api/admin/forgotPassword
+Admin / admin/verifyOtp -> {{url}}/api/admin/verifyOtp
+Admin / admin/profile -> {{url}}/api/admin/profile
+Admin / admin/scriptToMarkTheClasses -> {{url}}/api/admin/scriptToMarkTheClasses
+admin/logout -> {{url}}/api/admin/logout

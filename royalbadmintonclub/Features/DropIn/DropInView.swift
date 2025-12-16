@@ -1,4 +1,5 @@
 import SwiftUI
+import Realm
 import RealmSwift
 
 struct DropInView: View {
@@ -101,12 +102,14 @@ struct DropInView: View {
         Task {
             do {
                 let result = try await user.functions.joinDropIn([
-                    "sessionId": sessionId,
-                    "userId": user.id,
-                    "userName": playerName
-                ]) as Document
+                    AnyBSON([
+                        "sessionId": AnyBSON(sessionId),
+                        "userId": AnyBSON(user.id),
+                        "userName": AnyBSON(playerName)
+                    ])
+                ]) as AnyBSON
                 
-                if let success = result["success"]?.boolValue, success {
+                if let success = result.documentValue?["success"]??.boolValue, success {
                     await MainActor.run {
                         isJoining = false
                         showingPayment = false
@@ -117,7 +120,7 @@ struct DropInView: View {
                     }
                 } else {
                     throw NSError(domain: "DropIn", code: 1, userInfo: [
-                        NSLocalizedDescriptionKey: result["message"]?.stringValue ?? "Session is full"
+                        NSLocalizedDescriptionKey: result.documentValue?["message"]??.stringValue ?? "Session is full"
                     ])
                 }
             } catch {
@@ -140,11 +143,13 @@ struct DropInView: View {
         Task {
             do {
                 let result = try await user.functions.leaveDropIn([
-                    "sessionId": sessionId,
-                    "userId": user.id
-                ]) as Document
+                    AnyBSON([
+                        "sessionId": AnyBSON(sessionId),
+                        "userId": AnyBSON(user.id)
+                    ])
+                ]) as AnyBSON
                 
-                if let success = result["success"]?.boolValue, success {
+                if let success = result.documentValue?["success"]??.boolValue, success {
                     await MainActor.run {
                         isLeaving = false
                         alertMessage = "Successfully left session"
@@ -153,7 +158,7 @@ struct DropInView: View {
                     }
                 } else {
                     throw NSError(domain: "DropIn", code: 2, userInfo: [
-                        NSLocalizedDescriptionKey: result["message"]?.stringValue ?? "Failed to leave"
+                        NSLocalizedDescriptionKey: result.documentValue?["message"]??.stringValue ?? "Failed to leave"
                     ])
                 }
             } catch {

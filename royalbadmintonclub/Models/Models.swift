@@ -12,11 +12,25 @@ struct APIResponse<T: Codable>: Codable {
 // MARK: - Auth Models
 
 struct UserDTO: Codable, Identifiable {
-    var id: String { email }
+    let _id: String
+    var id: String { _id }
+    let first_name: String?
+    let last_name: String?
     let email: String
-    let name: String?
-    let phone: String?
-    let token: String?
+    let phone_number: String?
+    let profile_pic: String?
+    let country_code: String?
+    let gender: String?
+    let dob: String?
+    
+    var name: String {
+        return [first_name, last_name].compactMap { $0 }.joined(separator: " ")
+    }
+}
+
+struct LoginResponse: Codable {
+    let result: UserDTO
+    let auth_token: String
 }
 
 struct LoginRequest: Codable {
@@ -26,13 +40,25 @@ struct LoginRequest: Codable {
     let device_token: String
 }
 
-struct AuthDataDTO: Codable {
-    let user: UserDTO
-    let token: String
-}
-
 // MARK: - Slot Models
 
+struct SlotDTO: Codable, Identifiable, Hashable {
+    let _id: String
+    var id: String { _id }
+    let slot_time: String // "10:00"
+    let price: Double
+    let is_active: Bool
+    let isAvailableForBooking: Int? // 0 or 1
+}
+
+struct CourtDTO: Codable, Identifiable {
+    let _id: String
+    var id: String { _id }
+    let court_name: String
+    let venue_id: String
+}
+
+// Keeping old Slot for compatibility if needed, but preferable to migrate
 struct Slot: Codable, Identifiable, Hashable {
     var id: String { "\(time)" }
     let time: String // "10:00"
@@ -70,13 +96,51 @@ enum Location: String, Codable {
     }
 }
 
-// MARK: - Booking Models
-
 struct BookingDTO: Codable, Identifiable {
-    let id: String
-    let date: String
-    let slotTime: String
-    let status: String // "confirmed", "pending"
-    let courtName: String
-    // let location: Location? // Could add later
+    let _id: String
+    var id: String { _id }
+    let booking_date: String
+    let is_reserved: Bool?
+    
+    // Nested objects
+    let courtDetails: BookingCourtDetails?
+    let slotDetails: BookingSlotDetails?
+    
+    struct BookingCourtDetails: Codable {
+        let court_name: String
+        let venue_id: String
+    }
+    
+    struct BookingSlotDetails: Codable {
+        let slot_time: String
+        let price: Double
+    }
+    
+    // Computed properties for UI compatibility
+    var date: String { booking_date }
+    var slotTime: String { slotDetails?.slot_time ?? "00:00" }
+    var courtName: String { courtDetails?.court_name ?? "Unknown Court" }
+    var status: String { is_reserved == true ? "Confirmed" : "Pending" } // Simplified logic
+    var startTime: Date { 
+        // Helper to convert date + slotTime to Date object for conflict checking
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        let datePart = String(booking_date.prefix(10)) // "2024-01-30"
+        return formatter.date(from: "\(datePart) \(slotTime)") ?? Date()
+    }
+    var endTime: Date {
+        return Calendar.current.date(byAdding: .hour, value: 1, to: startTime) ?? startTime
+    }
+}
+
+struct AddToCartResponse: Codable {
+    let _id: String // This is likely the booking_id
+    // Add other fields if necessary
+}
+
+struct AddToCartRequest: Codable {
+    let court_id: String
+    let slot_id: String
+    let booking_date: String
+    let sport_type: String
 }
